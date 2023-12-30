@@ -25,7 +25,7 @@
  *
  */
 
-public static String version()          {  return "v1.0.0"  }
+public static String version()          {  return "v1.0.2"  }
 public static String name()             {  return "MQTT Notifications"  }
 public static String driverInfo()       {  return "<p style=\"text-align:center\"></br><strong><a href='https://thisoldsmarthome.com' target='_blank'>This Old Smart Home</a></strong> (tosh)</br>${name()}<br/><em>${version()}</em></p>"  }
 
