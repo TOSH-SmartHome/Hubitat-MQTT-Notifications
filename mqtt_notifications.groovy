@@ -32,15 +32,13 @@ public static String driverInfo()       {  return "<p style=\"text-align:center\
 metadata {
     definition (name: name(), namespace: "tosh", author: "John Goughenour") {
         capability "Notification"
-        
-        command "clearMqttBrokerSettings"
-        command "setMqttBroker", [[name: "MQTT Broker*", type: "STRING", description: "Enter MQTT Broker IP and Port e.g. server_IP:1883"],
-                                  [name: "MQTT User*", type: "STRING", description: "Enter MQTT broker username"]]
-        command "setMessageTopic", [[name: "Message Topic", type: "STRING", description: "Enter MQTT Message Topic to publish to"]]
     }   
     
     preferences {
-        input(name: "mqttPassword", type: "password", title: "<b>MQTT Password</b>", description: "The password for your MQTT Broker.</br>Enter Password", required: false)
+        input(name: "mqttBroker", type: "string", title: "<b>MQTT Broker</b>", description: "Enter MQTT Broker IP and Port e.g. server_IP:1883", required: false)
+        input(name: "mqttUsername", type: "string", title: "<b>MQTT Username</b>", description: "Enter MQTT broker username", required: false)
+        input(name: "mqttPassword", type: "password", title: "<b>MQTT Password</b>", description: "Enter password for your MQTT Broker", required: false)
+        input(name: "mqttTopic", type: "string", title: "<b>MQTT Topic</b>", description: "Enter MQTT Room Topic to listen for", required: false)
         input(name: "infoLogging", type: "bool", title: "<b>Enable Description Text</b>", defaultValue: "true", description: "", required: false)
         input(name: "debugLogging", type: "bool", title: "<b>Enable Debug Logging</b>", defaultValue: "true", description: "", required: false)
         input name:"about", type: "text", title: "<b>About Driver</b>", description: "Publish notifications to MQTT. ${driverInfo()}"
@@ -53,46 +51,26 @@ def installed(){
 
 def updated(){
 	if(infoLogging) log.info "${device.displayName} is updating"
-    interfaces.mqtt.disconnect()
-	unschedule()
 }
 
 def uninstalled(){
 	if(infoLogging) log.info "${device.displayName} is uninstalling"
-    interfaces.mqtt.disconnect()
 }
 
 // handle commands
 def deviceNotification(message) {
-    if(getDataValue("MQTT_Broker") && getDataValue("MQTT_User")) {
+    if(mqttBroker && mqttUsername) {
         try {
             if(debugLogging) log.debug "${device.displayName} settting up MQTT Broker"
-            interfaces.mqtt.connect("tcp://${getDataValue("MQTT_Broker")}", "hubitat_messages", getDataValue("MQTT_User"), mqttPassword)
+            interfaces.mqtt.connect("tcp://${mqttBroker}", "hubitat_messages", mqttUsername, mqttPassword)
             
             if(debugLogging) log.debug "${device.displayName} is sending message: ${message}"
-            interfaces.mqtt.publish(getDataValue("MQTT_Message_Topic"), message, 2, false)                      
+            interfaces.mqtt.publish(mqttTopic, message, 2, false)                      
         } catch(Exception e) {
             log.error "${device.displayName} unable to connect to the MQTT Broker ${e}"
         }
+        interfaces.mqtt.disconnect()
     } else log.error "${device.displayName} MQTT Broker and MQTT User are not set"
-    interfaces.mqtt.disconnect()  
-}
-
-def setMqttBroker(broker, user) {
-    if(debugLogging) log.debug "${device.displayName} is setting up mqtt broker variables"
-    updateDataValue("MQTT_Broker", "${broker}")
-    updateDataValue("MQTT_User", user)
-}
-
-def clearMqttBrokerSettings() {
-    if(debugLogging) log.debug "${device.displayName} is clearing MQTT Broker data"
-    removeDataValue("MQTT_Broker")
-    removeDataValue("MQTT_User")      
-}
-
-def setMessageTopic(topic) {
-    if(debugLogging) log.debug "${device.displayName} is setting up mqtt message topic variable"
-    if(topic) updateDataValue("MQTT_Message_Topic", "${topic}") else removeDataValue("MQTT_Message_Topic")
 }
 
 // parse events and messages
