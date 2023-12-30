@@ -1,0 +1,17 @@
+{
+  "packageName": "Hubitat MQTT Notifications",
+  "author": "John Goughenour",
+  "version": "1.0.0",
+  "minimumHEVersion": "2.1.9",
+  "dateReleased": "2023-12-29",
+  "licenseFile": "https://raw.githubusercontent.com/TOSH-SmartHome/Hubitat-MQTT-Notifications/main/LICENSE",
+  "drivers": [
+    {
+      "id": "e7c109e0-07c8-4cde-af83-7100a74ea722",
+      "name": "MQTT Notifications",
+      "namespace": "tosh",
+      "location": "https://raw.githubusercontent.com/TOSH-SmartHome/Hubitat-MQTT-Notifications/main/mqtt_notifications.groovy",
+      "required": false
+    }
+  ]
+}
