@@ -62,7 +62,12 @@ def deviceNotification(message) {
     if(mqttBroker && mqttUsername) {
         try {
             if(debugLogging) log.debug "${device.displayName} settting up MQTT Broker"
-            interfaces.mqtt.connect("tcp://${mqttBroker}", "hubitat_messages", mqttUsername, mqttPassword)
+            interfaces.mqtt.connect(
+                "tcp://${mqttBroker}", 
+                "hubitat_${device.displayName.toLowerCase().replaceAll(' ', '_')}", 
+                mqttUsername, 
+                mqttPassword
+            )
             
             if(debugLogging) log.debug "${device.displayName} is sending message: ${message}"
             interfaces.mqtt.publish(mqttTopic, message, 2, false)                      
