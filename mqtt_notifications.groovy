@@ -25,16 +25,30 @@
  *
  */
 
-public static String version()          {  return "v1.0.3"  }
-public static String name()             {  return "MQTT Notifications"  }
-public static String driverInfo()       {  return "<p style=\"text-align:center\"></br><strong><a href='https://thisoldsmarthome.com' target='_blank'>This Old Smart Home</a></strong> (tosh)</br>${name()}<br/><em>${version()}</em></p>"  }
+public static String version()      {  return "v1.0.3"  }
+public static String name()         {  return "MQTT Notifications"  }
+public static String codeUrl()
+{
+    return "https://raw.githubusercontent.com/TOSH-SmartHome/Hubitat-MQTT-Notifications/main/mqtt_notifications.groovy"
+}
+public static String driverInfo()
+{
+    return """
+        <p style='text-align:center'></br>
+        <strong><a href='https://thisoldsmarthome.com' target='_blank'>This Old Smart Home</a></strong> (TOSH-SmartHome)</br>
+        ${name()}</br>
+        <em>${version()}</em></p>
+    """
+}
 
 metadata {
-    definition (name: name(), namespace: "tosh", author: "John Goughenour") {
+    definition (name: name(), namespace: "TOSH-SmartHome", author: "John Goughenour", importUrl: codeUrl()) 
+    {
         capability "Notification"
     }   
     
-    preferences {
+    preferences 
+    {
         input(name: "mqttBroker", type: "string", title: "<b>MQTT Broker</b>", description: "Enter MQTT Broker IP and Port e.g. server_IP:1883", required: false)
         input(name: "mqttUsername", type: "string", title: "<b>MQTT Username</b>", description: "Enter MQTT broker username", required: false)
         input(name: "mqttPassword", type: "password", title: "<b>MQTT Password</b>", description: "Enter password for your MQTT Broker", required: false)
@@ -45,22 +59,26 @@ metadata {
      }
 }
 
-def installed(){
+def installed()
+{
 	if(infoLogging) log.info "${device.displayName} is installing"
 }
 
-def updated(){
+def updated()
+{
 	if(infoLogging) log.info "${device.displayName} is updating"
 }
 
-def uninstalled(){
+def uninstalled()
+{
 	if(infoLogging) log.info "${device.displayName} is uninstalling"
 }
 
 // handle commands
-def deviceNotification(message) {
+def deviceNotification(message)
+{
     if(infoLogging) log.info "${device.displayName} is sending notification message: ${message}"
-    if(mqttBroker && mqttUsername) {
+    if(mqttBroker && mqttUsername && mqttTopic) {
         try {
             if(debugLogging) log.debug "${device.displayName} settting up MQTT Broker"
             interfaces.mqtt.connect(
@@ -70,7 +88,7 @@ def deviceNotification(message) {
                 mqttPassword
             )
             
-            if(debugLogging) log.debug "${device.displayName} is sending message: ${message}"
+            if(debugLogging) log.debug "${device.displayName} is sending Topic: ${mqttTopic} Command: ${cmnd}"
             interfaces.mqtt.publish(mqttTopic, message, 2, false)                      
         } catch(Exception e) {
             log.error "${device.displayName} unable to connect to the MQTT Broker ${e}"
@@ -80,7 +98,8 @@ def deviceNotification(message) {
 }
 
 // parse events and messages
-def mqttClientStatus(message) {
+def mqttClientStatus(message)
+{
     switch(message) {
         case ~/.*Connection succeeded.*/:
             if(debugLogging) log.debug "MQTT Client Status: ${device.displayName} successfully connected to MQTT Broker"

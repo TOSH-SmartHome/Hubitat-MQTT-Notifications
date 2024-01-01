@@ -9,7 +9,7 @@
     {
       "id": "e7c109e0-07c8-4cde-af83-7100a74ea722",
       "name": "MQTT Notifications",
-      "namespace": "tosh",
+      "namespace": "TOSH-SmartHome",
       "location": "https://raw.githubusercontent.com/TOSH-SmartHome/Hubitat-MQTT-Notifications/main/mqtt_notifications.groovy",
       "required": false
     }
