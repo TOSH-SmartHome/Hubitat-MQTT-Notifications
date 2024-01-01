@@ -25,7 +25,7 @@
  *
  */
 
-public static String version()          {  return "v1.0.2"  }
+public static String version()          {  return "v1.0.3"  }
 public static String name()             {  return "MQTT Notifications"  }
 public static String driverInfo()       {  return "<p style=\"text-align:center\"></br><strong><a href='https://thisoldsmarthome.com' target='_blank'>This Old Smart Home</a></strong> (tosh)</br>${name()}<br/><em>${version()}</em></p>"  }
 
@@ -59,6 +59,7 @@ def uninstalled(){
 
 // handle commands
 def deviceNotification(message) {
+    if(infoLogging) log.info "${device.displayName} is sending notification message: ${message}"
     if(mqttBroker && mqttUsername) {
         try {
             if(debugLogging) log.debug "${device.displayName} settting up MQTT Broker"
@@ -75,7 +76,7 @@ def deviceNotification(message) {
             log.error "${device.displayName} unable to connect to the MQTT Broker ${e}"
         }
         interfaces.mqtt.disconnect()
-    } else log.error "${device.displayName} MQTT Broker and MQTT User are not set"
+    } else log.warn "${device.displayName} MQTT Broker and MQTT User are not set"
 }
 
 // parse events and messages
@@ -85,9 +86,9 @@ def mqttClientStatus(message) {
             if(debugLogging) log.debug "MQTT Client Status: ${device.displayName} successfully connected to MQTT Broker"
             break
         case ~/.*Error.*/:
-        if(debugLogging) log.debug "MQTT Client Status: ${device.displayName} unable to connect to MQTT Broker - ${message}"
+            log.error "MQTT Client Status: ${device.displayName} unable to connect to MQTT Broker - ${message}"
             break
         default:
-            if(debugLogging) log.info "MQTT Client Status ${device.displayName}: unknown status - ${message}"
+            log.warn "MQTT Client Status: ${device.displayName}: unknown status - ${message}"
     }
 }
