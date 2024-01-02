@@ -52,7 +52,7 @@ metadata {
         input(name: "mqttBroker", type: "string", title: "<b>MQTT Broker</b>", description: "Enter MQTT Broker IP and Port e.g. server_IP:1883", required: false)
         input(name: "mqttUsername", type: "string", title: "<b>MQTT Username</b>", description: "Enter MQTT broker username", required: false)
         input(name: "mqttPassword", type: "password", title: "<b>MQTT Password</b>", description: "Enter password for your MQTT Broker", required: false)
-        input(name: "mqttTopic", type: "string", title: "<b>MQTT Topic</b>", description: "Enter MQTT Room Topic to listen for", required: false)
+        input(name: "mqttTopic", type: "string", title: "<b>MQTT Topic</b>", description: "Enter MQTT Topic to publish to", required: false)
         input(name: "infoLogging", type: "bool", title: "<b>Enable Description Text</b>", defaultValue: "true", description: "", required: false)
         input(name: "debugLogging", type: "bool", title: "<b>Enable Debug Logging</b>", defaultValue: "true", description: "", required: false)
         input name:"about", type: "text", title: "<b>About Driver</b>", description: "Publish notifications to MQTT. ${driverInfo()}"
@@ -84,8 +84,7 @@ def deviceNotification(message)
             interfaces.mqtt.connect(
                 "tcp://${mqttBroker}",
                 "${location.hub.name.toLowerCase().replaceAll(' ', '_')}_${device.getDeviceNetworkId()}",
-                mqttUsername,
-                mqttPassword
+                mqttUsername, mqttPassword
             )
             
             if(debugLogging) log.debug "${device.displayName} is sending Topic: ${mqttTopic} Command: ${cmnd}"
